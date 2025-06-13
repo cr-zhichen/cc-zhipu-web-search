@@ -48,21 +48,21 @@ server.tool(
     "web-search",
     "使用智谱 Web Search API 进行网页检索",
     {
-        query: z.string().max(70).describe("搜索关键词，≤70字符"),
+        query: z.string().max(70).describe("需要进行搜索的内容, 建议搜索 query 不超过 70 个字符"),
         search_engine: z
             .enum(["search_std", "search_pro", "search_pro_sogou", "search_pro_quark", "search_pro_jina", "search_pro_bing"])
-            .default("search_std")
-            .describe("要调用的搜索引擎编码。默认: search_std"),
-        count: z.number().int().min(1).max(50).default(10).describe("返回条数 1~50，默认10"),
-        search_domain_filter: z.string().optional().describe("限定搜索结果的域名(例如 'www.example.com')"),
+            .default("search_pro")
+            .describe("要调用的搜索引擎编码。目前支持：search_std (智谱基础版), search_pro (智谱高阶版), search_pro_sogou (搜狗), search_pro_quark (夸克搜索), search_pro_jina (jina.ai搜索), search_pro_bing (必应搜索)"),
+        count: z.number().int().min(1).max(50).default(10).describe("返回结果的条数, 范围 1-50, 默认10。支持的搜索引擎：search_pro_sogou、search_std、search_pro。对于 search_pro_sogou，可选值为 10, 20, 30, 40, 50。"),
+        search_domain_filter: z.string().optional().describe("限定搜索结果的域名 (例如 'www.example.com')。支持的搜索引擎：search_std、search_pro、search_pro_Jina。"),
         search_recency_filter: z
             .enum(["oneDay", "oneWeek", "oneMonth", "oneYear", "noLimit"])
             .default("noLimit")
-            .describe("搜索指定时间范围内的网页。默认: noLimit"),
+            .describe("搜索指定时间范围内的网页。默认为 noLimit。支持的搜索引擎：search_std、search_pro、search_pro_Sogou、search_pro_quark。"),
         content_size: z
             .enum(["medium", "high"])
             .default("medium")
-            .describe("控制网页摘要的字数。默认: medium")
+            .describe("控制网页摘要的字数。medium (默认): 平衡模式, 约400-600字; high: 最大化上下文, 约2500字。"),
     },
     async (params) => {
         // 发起 POST 请求
@@ -92,26 +92,8 @@ server.tool(
 
         const data = await res.json() as SearchResponse;
 
-        // 把搜索结果格式化成易读文本
-        const results = data.search_result;
-        if (!results?.length) {
-            return { content: [{ type: "text", text: "未找到任何结果。" }] };
-        }
-
-        const pretty = results.map((r, idx) => {
-            const titleLine = [
-                `${idx + 1}. **${r.title ?? "无标题"}**`,
-                r.media ? `_(${r.media})_` : undefined,
-                r.publish_date ? `[${r.publish_date}]` : undefined
-            ].filter(Boolean).join(" ");
-
-            return `${titleLine}\n${r.content?.slice(0, 200) || "..."}\n${r.link}`;
-        }).join("\n\n");
-
         return {
-            content: [
-                { type: "text", text: `以下是「${params.query}」的前 ${results.length} 条结果：\n\n${pretty}` }
-            ]
+            content: [{ type: "text", text: JSON.stringify(data, null, 2) }]
         };
     }
 );
