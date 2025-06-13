@@ -1,0 +1,32 @@
+{
+  "name": "cc-zhipu-web-search",
+  "version": "1.0.0",
+  "description": "通过智谱 Web Search API 进行网页检索",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "cc-zhipu-web-search": "build/index.js"
+  },
+  "scripts": {
+    "start": "node build/index.js",
+    "build": "tsc && chmod +x build/index.js",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "build"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "dotenv": "^16.5.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^3.25.63"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "typescript": "^5.8.3"
+  }
+}

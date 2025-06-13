@@ -1,0 +1,13 @@
+# 依赖目录
+/node_modules
+
+# 编译输出目录
+/build
+
+# 环境变量文件
+.env
+
+# macOS 系统文件
+.DS_Store 
+
+.roo
